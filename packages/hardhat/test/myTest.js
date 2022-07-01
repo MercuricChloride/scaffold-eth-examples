@@ -12,32 +12,39 @@ describe("My Dapp", function () {
     setTimeout(done, 2000);
   });
 
-  describe("YourContract", function () {
-    it("Should deploy YourContract", async function () {
-      const YourContract = await ethers.getContractFactory("YourContract");
+  describe("SimpleSBT", function () {
+    it("Should deploy SimpleSBT", async function () {
+      const [addr0] = await ethers.getSigners();
+      const YourContract = await ethers.getContractFactory("SimpleSBT");
 
-      myContract = await YourContract.deploy();
+      myContract = await YourContract.deploy("SimpleSBT", "SSBT", [
+        addr0.address,
+      ]);
     });
 
-    describe("setPurpose()", function () {
-      it("Should be able to set a new purpose", async function () {
-        const newPurpose = "Test Purpose";
-
-        await myContract.setPurpose(newPurpose);
-        expect(await myContract.purpose()).to.equal(newPurpose);
+    describe("mint()", function () {
+      it("Should allow a owner of an sbt to mint a new token", async function () {
+        const [addr0, addr1] = await ethers.getSigners();
+        expect(await myContract.balanceOf(addr0.address)).to.equal(1);
+        expect(await myContract.totalSupply()).to.equal(1);
+        expect(await myContract.mint(addr1.address));
+        expect(await myContract.balanceOf(addr1.address)).to.equal(1);
+        expect(await myContract.totalSupply()).to.equal(2);
       });
 
-      // Uncomment the event and emit lines in YourContract.sol to make this test pass
+      it("Shouldn't allow an owner of an SBT to transfer their token", async function () {
+        const [addr0, addr1] = await ethers.getSigners();
+        expect(await myContract.balanceOf(addr0.address)).to.equal(1);
+        await expect(myContract.transferFrom(addr0.address, addr1.address, 1))
+          .to.be.reverted;
+      });
 
-      /*it("Should emit a SetPurpose event ", async function () {
-        const [owner] = await ethers.getSigners();
-
-        const newPurpose = "Another Test Purpose";
-
-        expect(await myContract.setPurpose(newPurpose)).to.
-          emit(myContract, "SetPurpose").
-            withArgs(owner.address, newPurpose);
-      });*/
+      it("Should allow an owner of an sbt to burn their token", async function () {
+        const [addr0] = await ethers.getSigners();
+        expect(await myContract.balanceOf(addr0.address)).to.equal(1);
+        expect(await myContract.burn(1));
+        expect(await myContract.balanceOf(addr0.address)).to.equal(0);
+      });
     });
   });
 });
