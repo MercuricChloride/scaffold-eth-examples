@@ -39,6 +39,14 @@ describe("My Dapp", function () {
           .to.be.reverted;
       });
 
+      it("Should only allow the minter to change metadata", async function() {
+        const [addr0, addr1] = await ethers.getSigners();
+        await expect(myContract.connect(addr1).setTokenMetadata(2, "test")).to.be.reverted;
+
+        expect(await myContract.connect(addr0).setTokenMetadata(2, "test"));
+        expect(await myContract.getMetadata(2)).to.equal("test");
+      });
+
       it("Should allow an owner of an sbt to burn their token", async function () {
         const [addr0] = await ethers.getSigners();
         expect(await myContract.balanceOf(addr0.address)).to.equal(1);

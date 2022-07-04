@@ -8,8 +8,9 @@ contract SimpleSBT is ERC721{
 
   uint public totalSupply;
   mapping (uint => string) public metadata;
+  mapping (uint => address) public tokenToMinter;
 
-  event Mint(address mintedTo, uint256 tokenId);
+  event Mint(address mintedTo, uint256 tokenId, address mintedBy);
   event MetadataAdded(string metadata);
   event Revoked(address revokedBy, uint256 tokenId);
 
@@ -22,10 +23,11 @@ contract SimpleSBT is ERC721{
 
   //@notice Mints a new token to the given address, can only be called by owners of this SBT or the owner of the contract
   function mint(address _to) public {
-    require(balanceOf(msg.sender) > 0, "Only owners of this SBT can mint tokens.");
+    require(balanceOf(msg.sender) > 0, "Only owners of an SBT can mint tokens.");
     totalSupply++;
     _mint(_to, totalSupply);
-    emit Mint(_to, totalSupply);
+    tokenToMinter[totalSupply] = msg.sender;
+    emit Mint(_to, totalSupply, msg.sender);
   }
 
   //@notice Function to fetch the metadata of a token
@@ -35,7 +37,7 @@ contract SimpleSBT is ERC721{
 
   //@notice Function to add or update metadata of a token
   function setTokenMetadata(uint256 _tokenId, string memory _metadata) public {
-    require(ownerOf(_tokenId) == msg.sender, "Only the owner can set their metadata");
+      require(tokenToMinter[_tokenId] == msg.sender, "Only the minter of a token can set their metadata.");
     metadata[_tokenId] = Base64.encode(bytes(_metadata));
   }
 
@@ -49,5 +51,6 @@ contract SimpleSBT is ERC721{
     _burn(_tokenId);
     emit Revoked(msg.sender, _tokenId);
   }
+
 
 }
