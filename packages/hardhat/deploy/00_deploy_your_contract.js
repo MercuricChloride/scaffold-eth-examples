@@ -15,13 +15,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     args: [
       "SIMPLE SBT",
       "SSBT",
-      ["0x2344Db305003000a93634c4FfBB4850F24498F16"],
+      ["0x807a1752402D21400D555e1CD7f175566088b955"],
     ],
+    confirmations: 5,
     log: true,
   });
 
   // Getting a previously deployed contract
-  //const YourContract = await ethers.getContract("YourContract", deployer);
+  const YourContract = await ethers.getContract("SimpleSBT", deployer);
   /*  await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 
@@ -58,10 +59,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   // Verify your contracts with Etherscan
   // You don't want to verify on localhost
   if (chainId !== localChainId) {
-    await run("verify:verify", {
+    run("verify:verify", {
       address: YourContract.address,
-      contract: "contracts/YourContract.sol:YourContract",
-      contractArguments: [],
+      contract: "contracts/YourContract.sol:SimpleSBT",
+      contractArguments: [
+        "SIMPLE SBT",
+        "SSBT",
+        ["0x807a1752402D21400D555e1CD7f175566088b955"],
+      ],
     });
   }
 };
