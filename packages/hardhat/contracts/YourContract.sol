@@ -35,10 +35,16 @@ contract SimpleSBT is ERC721{
     _metadata = string(Base64.decode(metadata[_tokenId]));
   }
 
+  //@notice Function to fetch the metadata of a token
+  function getEncodedMetadata(uint256 _tokenId) public view returns (string memory _metadata) {
+    _metadata = metadata[_tokenId];
+  }
+
   //@notice Function to add or update metadata of a token
   function setTokenMetadata(uint256 _tokenId, string memory _metadata) public {
       require(tokenToMinter[_tokenId] == msg.sender, "Only the minter of a token can set their metadata.");
-    metadata[_tokenId] = Base64.encode(bytes(_metadata));
+      metadata[_tokenId] = Base64.encode(bytes(_metadata));
+      emit MetadataAdded(_metadata);
   }
 
   //@notice a function that gets called before any token is transferred. Forces the owner to only be able to revoke the token.
@@ -51,6 +57,5 @@ contract SimpleSBT is ERC721{
     _burn(_tokenId);
     emit Revoked(msg.sender, _tokenId);
   }
-
 
 }
